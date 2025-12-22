@@ -1,5 +1,6 @@
-using ExpensesApp.API.Data;
+using ExpensesApp.API.Dtos;
 using ExpensesApp.API.Models;
+using ExpensesApp.API.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,20 +9,25 @@ namespace ExpensesApp.API.Controllers;
 [EnableCors("AllowAll")]
 [ApiController]
 [Route("api/[controller]")]
-public class ExpensesController : ControllerBase
+public class ExpensesController(IExpensesService expensesService) : ControllerBase
 {
     // GET
     [HttpGet("GetAllExpenses")]
     public IActionResult Index()
     {
-        var result = FakeDb.GetAllExpenses();
+        var result = expensesService.GetExpenses();
         return Ok(result);
     }
 
     [HttpGet("GetExpense/{id}")]
     public IActionResult GetExpense(int id)
     {
-        var expense = FakeDb.GetExpenseById(id);
+        var expense = expensesService.GetExpenseById(id);
+        
+        if(r9oe = "admin")
+            return Map<ExpenseResponseDto>(expense);
+        else 
+            return Map<ExpenseResponseSimplifiedDto>(expense); 
 
         if(expense == null)
             return NotFound();
@@ -30,7 +36,7 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpPost("AddExpense")]
-    public IActionResult AddExpense([FromBody] Expense expense)
+    public IActionResult AddExpense([FromBody] ExpenseRequestDto expense)
     {
         if (expense == null)
             return BadRequest("Expense data is required");
@@ -43,8 +49,18 @@ public class ExpensesController : ControllerBase
 
         if (expense.Amount <= 0)
             return BadRequest("Amount must be greater than 0");
-
-        var addedExpense = FakeDb.AddExpense(expense);
+        
+        //Mapping
+        var newExpense = new Expense()
+        {
+            Type = expense.Type,
+            Category = expense.Category,
+            Amount = expense.Amount,
+            Date = expense.Date,
+            Description = expense.Description
+        };
+        
+        var addedExpense = expensesService.AddExpense(newExpense);
         return CreatedAtAction(nameof(GetExpense), new { id = addedExpense.Id }, addedExpense);
     }
 
@@ -63,18 +79,14 @@ public class ExpensesController : ControllerBase
         if (expense.Amount <= 0)
             return BadRequest("Amount must be greater than 0");
 
-        var updated = FakeDb.UpdateExpense(id, expense);
-
-        if (!updated)
-            return NotFound();
-
-        return NoContent();
+        var updated = expensesService.UpdateExpense(expense);
+        return Ok(updated);
     }
 
     [HttpDelete("DeleteExpense/{id}")]
     public IActionResult DeleteExpense(int id)
     {
-        var deleted = FakeDb.DeleteExpense(id);
+        var deleted = expensesService.DeleteExpense(id);
 
         if (!deleted)
             return NotFound();

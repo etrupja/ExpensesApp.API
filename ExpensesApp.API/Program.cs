@@ -1,3 +1,5 @@
+using ExpensesApp.API.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +13,10 @@ builder.Services.AddCors(options => options
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+//Custom Services
+builder.Services.AddScoped<IExpensesService, ExpensesService>();
+
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();

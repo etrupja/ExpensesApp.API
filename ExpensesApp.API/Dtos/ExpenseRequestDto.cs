@@ -1,11 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+namespace ExpensesApp.API.Dtos;
 
-namespace ExpensesApp.API.Models;
-
-public class Expense
+public class ExpenseRequestDto
 {
-    public int Id { get; set; }
-    
     public DateTime Date { get; set; }
     public required string Type { get; set; }
     public string Category { get; set; }
