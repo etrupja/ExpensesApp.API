@@ -1,26 +1,38 @@
 using ExpensesApp.API.Data;
 using ExpensesApp.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpensesApp.API.Services;
 
-public class MySqlExpensesService:IExpensesService
+public class MySqlExpensesService : IExpensesService
 {
-    public List<Expense> GetExpenses()
+    private readonly ApplicationDbContext _context;
+
+    public MySqlExpensesService(ApplicationDbContext context)
     {
-        return FakeDb._expenses;
+        _context = context;
     }
 
-    public Expense? GetExpenseById(int id) => FakeDb._expenses.FirstOrDefault(x => x.Id == id);
+    public List<Expense> GetExpenses()
+    {
+        return _context.Expenses.ToList();
+    }
+
+    public Expense? GetExpenseById(int id)
+    {
+        return _context.Expenses.Find(id);
+    }
 
     public Expense AddExpense(Expense expense)
     {
-        FakeDb._expenses.Add(expense);
+        _context.Expenses.Add(expense);
+        _context.SaveChanges();
         return expense;
     }
 
     public Expense? UpdateExpense(Expense expense)
     {
-        var expenseToUpdate = FakeDb._expenses.FirstOrDefault(x => x.Id == expense.Id);
+        var expenseToUpdate = _context.Expenses.Find(expense.Id);
 
         if (expenseToUpdate != null)
         {
@@ -29,18 +41,21 @@ public class MySqlExpensesService:IExpensesService
             expenseToUpdate.Amount = expense.Amount;
             expenseToUpdate.Date = expense.Date;
             expenseToUpdate.Category = expense.Category;
+
+            _context.SaveChanges();
         }
-        
+
         return expenseToUpdate;
     }
 
     public bool DeleteExpense(int id)
     {
-        var dbRecord = FakeDb._expenses.FirstOrDefault(n => n.Id == id);
+        var dbRecord = _context.Expenses.Find(id);
 
         if (dbRecord == null) return false;
-        
-        FakeDb._expenses.Remove(dbRecord);
+
+        _context.Expenses.Remove(dbRecord);
+        _context.SaveChanges();
         return true;
     }
 }
