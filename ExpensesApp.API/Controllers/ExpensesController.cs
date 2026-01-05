@@ -23,12 +23,6 @@ public class ExpensesController(IExpensesService expensesService) : ControllerBa
     public IActionResult GetExpense(int id)
     {
         var expense = expensesService.GetExpenseById(id);
-        
-        if(r9oe = "admin")
-            return Map<ExpenseResponseDto>(expense);
-        else 
-            return Map<ExpenseResponseSimplifiedDto>(expense); 
-
         if(expense == null)
             return NotFound();
 
