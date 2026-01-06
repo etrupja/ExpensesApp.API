@@ -10,5 +10,6 @@ public class Expense
     public required string Type { get; set; }
     public string Category { get; set; }
     public string Description { get; set; }
+    public string? ShortDescription { get; set; }
     public double Amount { get; set; }
 }
