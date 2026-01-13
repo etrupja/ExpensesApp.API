@@ -3,24 +3,26 @@ using ExpensesApp.API.Models;
 
 namespace ExpensesApp.API.Services;
 
-public class ExpensesService:IExpensesService
+public class ExpensesService(AppDbContext dbContext):IExpensesService
 {
+    
     public List<Expense> GetExpenses()
     {
-        return FakeDb._expenses;
+        return dbContext.Expenses.ToList();
     }
 
-    public Expense? GetExpenseById(int id) => FakeDb._expenses.FirstOrDefault(x => x.Id == id);
+    public Expense? GetExpenseById(int id) => dbContext.Expenses.FirstOrDefault(x => x.Id == id);
 
     public Expense AddExpense(Expense expense)
     {
-        FakeDb._expenses.Add(expense);
+        dbContext.Expenses.Add(expense);
+        dbContext.SaveChanges();
         return expense;
     }
 
     public Expense? UpdateExpense(Expense expense)
     {
-        var expenseToUpdate = FakeDb._expenses.FirstOrDefault(x => x.Id == expense.Id);
+        var expenseToUpdate = dbContext.Expenses.FirstOrDefault(x => x.Id == expense.Id);
 
         if (expenseToUpdate != null)
         {
@@ -29,6 +31,9 @@ public class ExpensesService:IExpensesService
             expenseToUpdate.Amount = expense.Amount;
             expenseToUpdate.Date = expense.Date;
             expenseToUpdate.Category = expense.Category;
+            
+            dbContext.Expenses.Update(expenseToUpdate);
+            dbContext.SaveChanges();
         }
         
         return expenseToUpdate;
@@ -36,11 +41,13 @@ public class ExpensesService:IExpensesService
 
     public bool DeleteExpense(int id)
     {
-        var dbRecord = FakeDb._expenses.FirstOrDefault(n => n.Id == id);
+        var dbRecord = dbContext.Expenses.FirstOrDefault(n => n.Id == id);
 
         if (dbRecord == null) return false;
         
-        FakeDb._expenses.Remove(dbRecord);
+        dbContext.Expenses.Remove(dbRecord);
+        dbContext.SaveChanges();
+        
         return true;
     }
 }
