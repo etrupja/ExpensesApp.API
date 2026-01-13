@@ -1,28 +1,31 @@
 using ExpensesApp.API.Data;
 using ExpensesApp.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpensesApp.API.Services;
 
 public class ExpensesService(AppDbContext dbContext):IExpensesService
 {
     
-    public List<Expense> GetExpenses()
+    public async Task<List<Expense>> GetExpensesAsync()
     {
-        return dbContext.Expenses.ToList();
+        return await dbContext.Expenses
+            .Include(n => n.User)
+            .ToListAsync();
     }
 
-    public Expense? GetExpenseById(int id) => dbContext.Expenses.FirstOrDefault(x => x.Id == id);
+    public async Task<Expense?> GetExpenseByIdAsync(int id) => await dbContext.Expenses.FirstOrDefaultAsync(x => x.Id == id);
 
-    public Expense AddExpense(Expense expense)
+    public async Task<Expense> AddExpenseAsync(Expense expense)
     {
-        dbContext.Expenses.Add(expense);
-        dbContext.SaveChanges();
+        await dbContext.Expenses.AddAsync(expense);
+        await dbContext.SaveChangesAsync();
         return expense;
     }
 
-    public Expense? UpdateExpense(Expense expense)
+    public async Task<Expense?> UpdateExpenseAsync(Expense expense)
     {
-        var expenseToUpdate = dbContext.Expenses.FirstOrDefault(x => x.Id == expense.Id);
+        var expenseToUpdate = await dbContext.Expenses.FirstOrDefaultAsync(x => x.Id == expense.Id);
 
         if (expenseToUpdate != null)
         {
@@ -33,20 +36,20 @@ public class ExpensesService(AppDbContext dbContext):IExpensesService
             expenseToUpdate.Category = expense.Category;
             
             dbContext.Expenses.Update(expenseToUpdate);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
         }
         
         return expenseToUpdate;
     }
 
-    public bool DeleteExpense(int id)
+    public async Task<bool> DeleteExpenseAsync(int id)
     {
-        var dbRecord = dbContext.Expenses.FirstOrDefault(n => n.Id == id);
+        var dbRecord = await dbContext.Expenses.FirstOrDefaultAsync(n => n.Id == id);
 
         if (dbRecord == null) return false;
         
         dbContext.Expenses.Remove(dbRecord);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
         
         return true;
     }
