@@ -13,16 +13,16 @@ public class ExpensesController(IExpensesService expensesService) : ControllerBa
 {
     // GET
     [HttpGet("GetAllExpenses")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var result = expensesService.GetExpenses();
+        var result = await expensesService.GetExpensesAsync();
         return Ok(result);
     }
 
     [HttpGet("GetExpense/{id}")]
-    public IActionResult GetExpense(int id)
+    public async Task<IActionResult> GetExpense(int id)
     {
-        var expense = expensesService.GetExpenseById(id);
+        var expense = await expensesService.GetExpenseByIdAsync(id);
         if(expense == null)
             return NotFound();
 
@@ -30,7 +30,7 @@ public class ExpensesController(IExpensesService expensesService) : ControllerBa
     }
 
     [HttpPost("AddExpense")]
-    public IActionResult AddExpense([FromBody] ExpenseRequestDto expense)
+    public async Task<IActionResult> AddExpense([FromBody] ExpenseRequestDto expense)
     {
         if (expense == null)
             return BadRequest("Expense data is required");
@@ -54,12 +54,12 @@ public class ExpensesController(IExpensesService expensesService) : ControllerBa
             Description = expense.Description
         };
         
-        var addedExpense = expensesService.AddExpense(newExpense);
+        var addedExpense = await expensesService.AddExpenseAsync(newExpense);
         return CreatedAtAction(nameof(GetExpense), new { id = addedExpense.Id }, addedExpense);
     }
 
     [HttpPut("UpdateExpense/{id}")]
-    public IActionResult UpdateExpense([FromBody] Expense expense, int id)
+    public async Task<IActionResult> UpdateExpense([FromBody] Expense expense, int id)
     {
         if (expense == null)
             return BadRequest("Expense data is required");
@@ -73,14 +73,14 @@ public class ExpensesController(IExpensesService expensesService) : ControllerBa
         if (expense.Amount <= 0)
             return BadRequest("Amount must be greater than 0");
 
-        var updated = expensesService.UpdateExpense(expense);
+        var updated = await expensesService.UpdateExpenseAsync(expense);
         return Ok(updated);
     }
 
     [HttpDelete("DeleteExpense/{id}")]
-    public IActionResult DeleteExpense(int id)
+    public async Task<IActionResult> DeleteExpense(int id)
     {
-        var deleted = expensesService.DeleteExpense(id);
+        var deleted = await expensesService.DeleteExpenseAsync(id);
 
         if (!deleted)
             return NotFound();

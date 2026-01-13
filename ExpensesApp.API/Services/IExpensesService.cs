@@ -4,9 +4,9 @@ namespace ExpensesApp.API.Services;
 
 public interface IExpensesService
 {
-    List<Expense> GetExpenses();
-    Expense? GetExpenseById(int id);
-    Expense AddExpense(Expense expense);
-    Expense? UpdateExpense(Expense expense);
-    bool DeleteExpense(int id);
+    Task<List<Expense>> GetExpensesAsync();
+    Task<Expense?> GetExpenseByIdAsync(int id);
+    Task<Expense> AddExpenseAsync(Expense expense);
+    Task<Expense?> UpdateExpenseAsync(Expense expense);
+    Task<bool> DeleteExpenseAsync(int id);
 }
